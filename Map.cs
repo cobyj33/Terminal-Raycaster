@@ -12,7 +12,6 @@ public class Map {
                 tiles[row,col] = new EmptyTile();
             }
         }
-        FillEdges();
     }
 
     public Map(Tile[,] tiles) {
@@ -25,7 +24,11 @@ public class Map {
 
     public Vector2Double Center { get => new Vector2Double(tiles.GetLength(0) / 2, tiles.GetLength(1) / 2); }
 
-    public bool InBounds(Vector2Double vector) {
+    public bool InBounds(Vector2Double doubleVector) {
+        return InBounds(doubleVector.Int());
+    }
+
+    public bool InBounds(Vector2Int vector) {
         return vector.row >= 0 && vector.row < tiles.GetLength(0) && vector.col >= 0 && vector.col < tiles.GetLength(1);
     }
 

@@ -12,7 +12,13 @@ public class Camera : IPositionable, IDrawable {
 
     private Map map;
     public Vector2Double Position { get => position; set {
-            position = value;
+            if (!map.InBounds(value)) {
+                Console.WriteLine("Cannot Move Position, Out of Bounds");
+            } else if (map.At((int)value.row, (int)value.col) is IHittable) {
+                Console.WriteLine("Cannot move into hittable object");
+            } else {
+                position = value;
+            }
         }
     }
 
@@ -25,32 +31,50 @@ public class Camera : IPositionable, IDrawable {
     //     this.position = position;
     // }
 
-    private List<double> lineHeightPercentages = new List<double>();
-    public List<double> LineHeightPercentages { get => lineHeightPercentages; }
+    private List<CameraLine> cameraLineData = new List<CameraLine>();
+    public List<CameraLine> CameraLineData { get => cameraLineData; }
     public int LineCount { get => Console.BufferWidth - 1; }
     public double FOV = 70;
-    public int viewDistance = 30;
+    public int viewDistance = 60;
+    public int castDistance = 50;
 
     public Camera(Map map) { this.map = map; }
 
-    public void ForceLineHeightPercentages(List<double> lines) {
-        lineHeightPercentages = new List<double>(lines);
-    }
+    // public void ForceLineHeightPercentages(List<double> lines) {
+    //     lineHeightPercentages = new List<double>(lines);
+    // }
 
     public void Render() {
-        lineHeightPercentages = new List<double>();
+        cameraLineData = new List<CameraLine>();
+
+        
+        Vector2Double startingCameraPlaneLocation = position + direction.RotateDegrees(FOV / 2.0).normalized();
+        Vector2Double endingCameraPlaneLocation =  position + direction.RotateDegrees(-FOV / 2.0).normalized();
+        Vector2Double perpendicularDirection = endingCameraPlaneLocation - startingCameraPlaneLocation;
+        double distanceBetweenStartAndEnd = Vector2Double.Distance(startingCameraPlaneLocation, endingCameraPlaneLocation);
+        Vector2Double currentCameraPlaneLocation = startingCameraPlaneLocation;
+        // LineSegment cameraPlane = new LineSegment(position + direction.RotateDegrees(FOV / 2.0).normalized(), position - direction.RotateDegrees(FOV / 2.0).normalized());
         // Console.WriteLine( "Field of view: " + FOV );
-        for (double rotation = Vector2Double.ToAngleDegrees(direction) - FOV / 2.0; rotation <= Vector2Double.ToAngleDegrees(direction) + FOV / 2.0; rotation += FOV / LineCount) {
-            if (lineHeightPercentages.Count >= LineCount) {
+        for (int i = 0; i < LineCount; i++) {
+            currentCameraPlaneLocation += perpendicularDirection.ToLength(distanceBetweenStartAndEnd / LineCount);
+            if (cameraLineData.Count >= LineCount) {
                 break;
             }
 
-            Ray ray = new Ray(this.position, Vector2Double.RotateDegrees(this.direction, rotation), (hit) => {
-                lineHeightPercentages.Add( 1 - Vector2Double.Distance(hit, this.position) / viewDistance );
-                // lineHeightPercentages.Add( Vector2Double.Distance(hit, this.position) / viewDistance );
-            });
-            // Console.WriteLine(" Direction: " + Vector2Double.RotateDegrees(this.direction, rotation) );
+            Ray ray = new Ray(this.position, currentCameraPlaneLocation - position, (hit) => {
+                cameraLineData.Add( new CameraLine(hit, (1.0d - Vector2Double.Distance(hit.Position, this.position) / viewDistance ) ) );
+            }, () => { cameraLineData.Add( CameraLine.Empty ); }  );
             ray.Cast(viewDistance, map);
+        }
+    }
+
+    public char CardinalToChar(Cardinal cardinal) {
+        switch (cardinal) {
+            case Cardinal.NORTH: return '$';
+            case Cardinal.EAST: return '@';
+            case Cardinal.SOUTH: return '-';
+            case Cardinal.WEST: return '*';
+            default: return '%';
         }
     }
 
@@ -58,17 +82,20 @@ public class Camera : IPositionable, IDrawable {
         Console.Clear();
         int height = Console.BufferHeight;
         int centerHeight = height / 2;
-        int width = lineHeightPercentages.Count;
-        List<int> lineHeights = lineHeightPercentages.Select(percentage => (int)(percentage * height)).ToList();
+        int width = cameraLineData.Count;
+        List<int> lineHeights = cameraLineData.Select(lineData => (int)(lineData.LineLengthPercentage * height)).ToList();
 
         StringBuilder builder = new StringBuilder();
         for (int row = 0; row < height; row++) {
             int distanceFromCenter = Math.Abs(row - centerHeight);
             for (int col = 0; col < width; col++) {
                 if (lineHeights[col] / 2 > distanceFromCenter) {
-                    builder.Append("■");
+                    CameraLine currentLine = cameraLineData[col];
+                    if (currentLine.Hit.HasValue) {
+                        builder.Append(CardinalToChar(currentLine.Hit.Value.Side));
+                    }
                 } else {
-                    builder.Append(" ");
+                    builder.Append(' ');
                 }
             }
             builder.AppendLine();
