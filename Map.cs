@@ -5,6 +5,8 @@ public class Map {
     
     private Tile[,] tiles;
 
+    public Tile[,] Tiles { get => tiles; }
+
     public Map(Dimension dimension) {
         tiles = new Tile[dimension.rows,dimension.cols];
         for (int row = 0; row < dimension.rows; row++) {
@@ -14,12 +16,20 @@ public class Map {
         }
     }
 
+    public Map(Dimension dimension, IMapGenerator generator) {
+        this.tiles = generator.Generate(new Dimension(dimension.rows, dimension.cols)).Tiles;
+    }
+
     public Map(Tile[,] tiles) {
         this.tiles = tiles;
     }
 
     public void PlaceTile(Tile tile, int row, int col) {
         tiles[row,col] = tile;
+    }
+
+    public void PlaceTile(Tile tile, Vector2Int position) {
+        tiles[position.row,position.col] = tile;
     }
 
     public Vector2Double Center { get => new Vector2Double(tiles.GetLength(0) / 2, tiles.GetLength(1) / 2); }
@@ -34,6 +44,10 @@ public class Map {
 
     public Tile At(int row, int col) {
         return tiles[row,col];
+    }
+
+    public Tile At(Vector2Int vector2Int) {
+        return tiles[vector2Int.row,vector2Int.col];
     }
 
     public void FillEdges() {

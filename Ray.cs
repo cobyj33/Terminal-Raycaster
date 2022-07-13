@@ -25,29 +25,38 @@ public class Ray {
         // Console.WriteLine("RAY CAST:  ");
 
         Vector2Double currentRowPosition = this.origin;
+        int rowStepDirection = direction.row < 0 ? -1 : 1;
         while (firstRowHit == null && Vector2Double.Distance(currentRowPosition, this.origin) < distance  && map.InBounds(currentRowPosition) ) {
             // Console.WriteLine(currentRowPosition);
-            Tile tile = map.At((int)currentRowPosition.row, (int)currentRowPosition.col);
-            if (tile is IHittable) {
-                firstRowHit = new RayCastHit(currentRowPosition, direction.row <= 0 ? Cardinal.NORTH : Cardinal.SOUTH, tile as IHittable);
-                break;
+            Vector2Int tileToCheck = rowStepDirection > 0 ? new Vector2Int((int)currentRowPosition.row, (int)currentRowPosition.col) : new Vector2Int((int)(currentRowPosition.row) - 1, (int)currentRowPosition.col);
+            if (map.InBounds(tileToCheck)) {
+                Tile tile = map.At(tileToCheck);
+                if (tile is IHittable) {
+                    firstRowHit = new RayCastHit(currentRowPosition, direction.row <= 0 ? Cardinal.NORTH : Cardinal.SOUTH, tile as IHittable);
+                    break;
+                }
             }
-            double nextRow = currentRowPosition.row + (direction.row < 0 ? -1 : 1);
+            double nextRow = Math.Floor(currentRowPosition.row + rowStepDirection);
             currentRowPosition += direction.AlterToRow(nextRow - currentRowPosition.row); 
         }
 
         Vector2Double currentColPosition = this.origin;
+        int colStepDirection = direction.col < 0 ? -1 : 1;
         while (firstColHit == null && Vector2Double.Distance(currentColPosition, this.origin) < distance && map.InBounds(currentColPosition) ) {
             // Console.WriteLine(currentColPosition);
-            Tile tile = map.At((int)currentColPosition.row, (int)currentColPosition.col);
-            if (tile is IHittable) {
-                firstColHit = new RayCastHit(currentColPosition, direction.col <= 0 ? Cardinal.WEST : Cardinal.EAST, tile as IHittable);
-                break;
+            Vector2Int tileToCheck = colStepDirection > 0 ? new Vector2Int((int)currentColPosition.row, (int)currentColPosition.col) : new Vector2Int((int)currentColPosition.row, (int)(currentColPosition.col) - 1);
+            if (map.InBounds(tileToCheck) ) {
+                Tile tile = map.At(tileToCheck);
+                if (tile is IHittable) {
+                    firstColHit = new RayCastHit(currentColPosition, direction.col <= 0 ? Cardinal.WEST : Cardinal.EAST, tile as IHittable);
+                    break;
+                }
             }
 
-            double nextCol = currentColPosition.col + (direction.col < 0 ? -1 : 1);
+            double nextCol = Math.Floor(currentColPosition.col + colStepDirection);
             currentColPosition += direction.AlterToCol(nextCol - currentColPosition.col);
         }
+
 
         if (!firstRowHit.HasValue && !firstColHit.HasValue) {
             OnNoHit?.Invoke();

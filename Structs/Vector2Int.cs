@@ -1,4 +1,6 @@
 using System;
+
+
 public struct Vector2Int {
     public static Vector2Int zero = new Vector2Int(0, 0);
     public static Vector2Int left = new Vector2Int(0, -1);
@@ -17,6 +19,10 @@ public struct Vector2Int {
     public Vector2Int(int row, int col) {
         this.row = row; 
         this.col = col;
+    }
+
+    public Vector2Int Translate(int row, int col) {
+        return new Vector2Int(this.row + row, this.col + col);
     }
 
     public Vector2Double Double() {
@@ -48,4 +54,17 @@ public struct Vector2Int {
     public static Vector2Int operator -(Vector2Int a, Vector2Int b) => new Vector2Int(a.Row - b.Row, a.Col - b.Col);
     // public static Vector2Int operator *(Vector2Int a, Vector2Int b) => new Vector2Int(a.x - b.x, a.y - b.y);
     public static Vector2Int operator *(Vector2Int a, double b) => new Vector2Int((int)(a.Row * b), (int)(a.Col * b));
+}
+
+public class Vector2IntComparer : IEqualityComparer<Vector2Int> {
+    public bool Equals(Vector2Int vector1, Vector2Int vector2)
+    {
+        return vector1.row == vector2.row && vector1.col == vector2.col;
+    }
+
+    public int GetHashCode(Vector2Int vector)
+    {
+        int hCode = vector.row ^ vector.col;
+        return hCode.GetHashCode();
+    }
 }

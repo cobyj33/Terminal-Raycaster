@@ -64,6 +64,10 @@ public struct Vector2Double {
         return new Vector2Double((this.Row / this.Length), (this.Col / this.Length));
     }
 
+    public static double AngleBetween(Vector2Double start, Vector2Double end) {
+        return end.ToAngle() - start.ToAngle();
+    }
+
     public override string ToString()
     {
         return $"Vector2Double: [ Row: {this.row}, Col: {this.col} Angle: { this.ToAngleDegrees() }]";

@@ -48,21 +48,23 @@ public class Camera : IPositionable, IDrawable {
         cameraLineData = new List<CameraLine>();
 
         
-        Vector2Double startingCameraPlaneLocation = position + direction.RotateDegrees(FOV / 2.0).normalized();
-        Vector2Double endingCameraPlaneLocation =  position + direction.RotateDegrees(-FOV / 2.0).normalized();
+        Vector2Double startingCameraPlaneLocation = position + direction.RotateDegrees(FOV / 2.0).ToLength(0.1);
+        Vector2Double endingCameraPlaneLocation =  position + direction.RotateDegrees(-FOV / 2.0).ToLength(0.1);
         Vector2Double perpendicularDirection = endingCameraPlaneLocation - startingCameraPlaneLocation;
         double distanceBetweenStartAndEnd = Vector2Double.Distance(startingCameraPlaneLocation, endingCameraPlaneLocation);
         Vector2Double currentCameraPlaneLocation = startingCameraPlaneLocation;
-        // LineSegment cameraPlane = new LineSegment(position + direction.RotateDegrees(FOV / 2.0).normalized(), position - direction.RotateDegrees(FOV / 2.0).normalized());
-        // Console.WriteLine( "Field of view: " + FOV );
+
+
         for (int i = 0; i < LineCount; i++) {
             currentCameraPlaneLocation += perpendicularDirection.ToLength(distanceBetweenStartAndEnd / LineCount);
             if (cameraLineData.Count >= LineCount) {
                 break;
             }
 
-            Ray ray = new Ray(this.position, currentCameraPlaneLocation - position, (hit) => {
-                cameraLineData.Add( new CameraLine(hit, (1.0d - Vector2Double.Distance(hit.Position, this.position) / viewDistance ) ) );
+            Vector2Double rayDirection = currentCameraPlaneLocation - position;
+            Ray ray = new Ray(this.position, rayDirection, (hit) => {
+                double distanceFromHitToPlane = Vector2Double.Distance(currentCameraPlaneLocation, hit.Position) * Math.Sin( Vector2Double.AngleBetween( perpendicularDirection, rayDirection) );
+                cameraLineData.Add( new CameraLine(hit, (1.0d / distanceFromHitToPlane ) ) );
             }, () => { cameraLineData.Add( CameraLine.Empty ); }  );
             ray.Cast(viewDistance, map);
         }
