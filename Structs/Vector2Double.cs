@@ -89,4 +89,8 @@ public struct Vector2Double {
     public static double Distance(Vector2Double first, Vector2Double second) {
         return Math.Sqrt(Math.Pow(second.Row - first.Row, 2) + Math.Pow(second.Col - first.Col, 2));
     }
+
+    public static Vector2Double Midpoint(Vector2Double first, Vector2Double second) {
+        return new Vector2Double( (first.row + second.row) / 2, ( first.col + second.col) / 2 );
+    }
 }

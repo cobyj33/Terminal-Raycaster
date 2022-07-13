@@ -14,7 +14,7 @@ class Program {
     public static void Main(string[] args) {
         Console.WriteLine("Hello World");
         // Map map = new Map(new Dimension(10, 10));
-        Map map = MapFileReader.FromFile("map.txt");
+        Map map = MapFileReader.FromFile("boxes.txt");
         // Map map = new Map(new Dimension(50, 50), new Prim());
         map.FillEdges();
         Console.WriteLine(map.ToString());
@@ -31,7 +31,7 @@ class Program {
         eventSystem.AddAction(new KeyAction(ConsoleKey.D, () => camera.Direction = camera.Direction.RotateDegrees(-5)) );
         eventSystem.AddAction(new KeyAction(ConsoleKey.LeftArrow, () =>{ 
             viewIndex--;
-            viewIndex %= Enum.GetValues(typeof(View)).Length;
+            if (viewIndex < 0) { viewIndex =  Enum.GetValues(typeof(View)).Length - 1; };
             view = (View)((View[])Enum.GetValues(typeof(View))).GetValue(viewIndex); 
             }) );
         eventSystem.AddAction(new KeyAction(ConsoleKey.RightArrow, () =>{ 
@@ -44,7 +44,7 @@ class Program {
         while (true) {
             Thread.Sleep( (int)((1.0d / 30) * 1000) );
             switch (view) {
-                case View.BIRD: Console.WriteLine(map); break;
+                case View.BIRD: {Console.WriteLine(map.ToString(camera)); break;}
                 case View.PERSPECTIVE: {
                     camera.Render();
                     camera.Display();

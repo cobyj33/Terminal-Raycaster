@@ -15,7 +15,7 @@ public class Camera : IPositionable, IDrawable {
             if (!map.InBounds(value)) {
                 Console.WriteLine("Cannot Move Position, Out of Bounds");
             } else if (map.At((int)value.row, (int)value.col) is IHittable) {
-                Console.WriteLine("Cannot move into hittable object");
+                Console.WriteLine($"Cannot move into hittable object: {(int)value.row} {(int)value.col}");
             } else {
                 position = value;
             }
@@ -49,9 +49,12 @@ public class Camera : IPositionable, IDrawable {
 
         
         Vector2Double startingCameraPlaneLocation = position + direction.RotateDegrees(FOV / 2.0).ToLength(0.1);
-        Vector2Double endingCameraPlaneLocation =  position + direction.RotateDegrees(-FOV / 2.0).ToLength(0.1);
+        Vector2Double endingCameraPlaneLocation =  position + direction.RotateDegrees(360 - FOV / 2.0).ToLength(0.1);
+        Vector2Double middleCameraPlaneLocation = Vector2Double.Midpoint(startingCameraPlaneLocation, endingCameraPlaneLocation);
+
         Vector2Double perpendicularDirection = endingCameraPlaneLocation - startingCameraPlaneLocation;
         double distanceBetweenStartAndEnd = Vector2Double.Distance(startingCameraPlaneLocation, endingCameraPlaneLocation);
+        double distanceFromPlaneToCamera = Vector2Double.Distance(this.position, middleCameraPlaneLocation);
         Vector2Double currentCameraPlaneLocation = startingCameraPlaneLocation;
 
 
@@ -62,8 +65,8 @@ public class Camera : IPositionable, IDrawable {
             }
 
             Vector2Double rayDirection = currentCameraPlaneLocation - position;
-            Ray ray = new Ray(this.position, rayDirection, (hit) => {
-                double distanceFromHitToPlane = Vector2Double.Distance(currentCameraPlaneLocation, hit.Position) * Math.Sin( Vector2Double.AngleBetween( perpendicularDirection, rayDirection) );
+            Ray ray = new Ray(this.position, rayDirection, (hit) => { //changed distance from currentCameraPlaneLocation to position. The actual rendering plane now lies perpendicular to the direction of the camera and through the camera's position
+                double distanceFromHitToPlane = Vector2Double.Distance(currentCameraPlaneLocation, hit.Position) * Math.Sin( Vector2Double.AngleBetween( perpendicularDirection, rayDirection  ) );
                 cameraLineData.Add( new CameraLine(hit, (1.0d / distanceFromHitToPlane ) ) );
             }, () => { cameraLineData.Add( CameraLine.Empty ); }  );
             ray.Cast(viewDistance, map);

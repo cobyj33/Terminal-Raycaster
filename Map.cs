@@ -33,7 +33,6 @@ public class Map {
     }
 
     public Vector2Double Center { get => new Vector2Double(tiles.GetLength(0) / 2, tiles.GetLength(1) / 2); }
-
     public bool InBounds(Vector2Double doubleVector) {
         return InBounds(doubleVector.Int());
     }

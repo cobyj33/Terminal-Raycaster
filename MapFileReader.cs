@@ -7,6 +7,11 @@ class MapFileReader {
         [0] = () => new EmptyTile(),
         [1] = () => new WallTile()
     };
+
+    // public static Map? FromImageFile(string relativeFilePath) {
+    //     System.IO.FileInfo()
+    // }
+
     public static Map? FromFile(string relativeFilePath) {
         string fullFilePath = Path.GetFullPath(relativeFilePath);
         string[] lines = File.ReadAllLines(fullFilePath);

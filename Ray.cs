@@ -3,8 +3,8 @@ using System;
 public class Ray {
     private Vector2Double origin;
     private Vector2Double direction;
-    private Action<RayCastHit> OnHit;
-    private Action OnNoHit;
+    private event Action<RayCastHit> OnHit;
+    private event Action OnNoHit;
 
     public Ray(Vector2Double origin, Vector2Double direction, Action<RayCastHit> onHit) {
         this.origin = origin;
@@ -14,21 +14,36 @@ public class Ray {
 
     public Ray(Vector2Double origin, Vector2Double direction, Action<RayCastHit> onHit, Action onNoHit) {
         this.origin = origin;
-        this.direction = direction;
+        this.direction = direction.normalized();
         this.OnHit += onHit;
-        this.OnNoHit = onNoHit;
+        this.OnNoHit += onNoHit;
     }
+
+    // public void Cast(int distance, Map map) {
+    //     RayCastHit? hit = null;
+    //     Vector2Double currentPosition = this.origin;
+    //     double directionAngle = direction.ToAngle();
+
+    //     while ( hit == null && Vector2Double.Distance(currentPosition, origin) < distance && map.InBounds(currentPosition) ) {
+    //     }
+
+    //     if (hit.HasValue) {
+    //         OnHit?.Invoke(hit.Value);
+    //     } else {
+    //         OnNoHit?.Invoke();
+    //     }
+    // }
 
     public void Cast(int distance, Map map) {
         RayCastHit? firstRowHit = null;
         RayCastHit? firstColHit = null;
-        // Console.WriteLine("RAY CAST:  ");
 
         Vector2Double currentRowPosition = this.origin;
         int rowStepDirection = direction.row < 0 ? -1 : 1;
         while (firstRowHit == null && Vector2Double.Distance(currentRowPosition, this.origin) < distance  && map.InBounds(currentRowPosition) ) {
-            // Console.WriteLine(currentRowPosition);
-            Vector2Int tileToCheck = rowStepDirection > 0 ? new Vector2Int((int)currentRowPosition.row, (int)currentRowPosition.col) : new Vector2Int((int)(currentRowPosition.row) - 1, (int)currentRowPosition.col);
+            double nextRow = rowStepDirection > 0 ? Math.Floor(currentRowPosition.row + rowStepDirection) : Math.Ceiling(currentRowPosition.row + rowStepDirection);
+            currentRowPosition += direction.AlterToRow(nextRow - currentRowPosition.row); 
+            Vector2Int tileToCheck = rowStepDirection > 0 ? currentRowPosition.Int() : new Vector2Int((int)Math.Round(currentRowPosition.row + rowStepDirection), (int)currentRowPosition.col);
             if (map.InBounds(tileToCheck)) {
                 Tile tile = map.At(tileToCheck);
                 if (tile is IHittable) {
@@ -36,15 +51,15 @@ public class Ray {
                     break;
                 }
             }
-            double nextRow = Math.Floor(currentRowPosition.row + rowStepDirection);
-            currentRowPosition += direction.AlterToRow(nextRow - currentRowPosition.row); 
         }
 
         Vector2Double currentColPosition = this.origin;
         int colStepDirection = direction.col < 0 ? -1 : 1;
         while (firstColHit == null && Vector2Double.Distance(currentColPosition, this.origin) < distance && map.InBounds(currentColPosition) ) {
-            // Console.WriteLine(currentColPosition);
-            Vector2Int tileToCheck = colStepDirection > 0 ? new Vector2Int((int)currentColPosition.row, (int)currentColPosition.col) : new Vector2Int((int)currentColPosition.row, (int)(currentColPosition.col) - 1);
+            double nextCol = colStepDirection > 0 ? Math.Floor(currentColPosition.col + colStepDirection) : Math.Ceiling(currentColPosition.col + colStepDirection);
+            currentColPosition += direction.AlterToCol(nextCol - currentColPosition.col);
+
+            Vector2Int tileToCheck = colStepDirection > 0 ? currentColPosition.Int() : new Vector2Int((int)currentColPosition.row, (int)Math.Round(currentColPosition.col + colStepDirection));
             if (map.InBounds(tileToCheck) ) {
                 Tile tile = map.At(tileToCheck);
                 if (tile is IHittable) {
@@ -52,9 +67,6 @@ public class Ray {
                     break;
                 }
             }
-
-            double nextCol = Math.Floor(currentColPosition.col + colStepDirection);
-            currentColPosition += direction.AlterToCol(nextCol - currentColPosition.col);
         }
 
 
@@ -65,7 +77,7 @@ public class Ray {
         } else if (firstRowHit.HasValue && !firstColHit.HasValue) {
             OnHit(firstRowHit.Value);
         } else if (firstRowHit.HasValue && firstColHit.HasValue) {
-            if (Vector2Double.Distance(firstRowHit.Value.Position, this.origin) < Vector2Double.Distance(firstColHit.Value.Position, this.origin)) {
+            if (Vector2Double.Distance(firstRowHit.Value.Position, this.origin) <= Vector2Double.Distance(firstColHit.Value.Position, this.origin)) {
                 OnHit(firstRowHit.Value);
             } else {
                 OnHit(firstColHit.Value);
