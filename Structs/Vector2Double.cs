@@ -1,5 +1,12 @@
 using System;
 public struct Vector2Double {
+    public static Vector2Double zero = new Vector2Double(0, 0);
+    public static Vector2Double left = new Vector2Double(0, -1);
+    public static Vector2Double right = new Vector2Double(0, 1);
+
+    public static Vector2Double up = new Vector2Double(-1, 0);
+
+    public static Vector2Double down = new Vector2Double(1, 0);
     public double Row { get => row; }
     public double Col { get => col; }
     public double Length { get => Math.Sqrt(Math.Pow(this.row, 2) + Math.Pow(this.col, 2)); }
@@ -9,6 +16,14 @@ public struct Vector2Double {
     public Vector2Double(double row, double col) {
         this.row = row; 
         this.col = col;
+    }
+
+    public Vector2Double GetRowComponent() {
+        return new Vector2Double(this.row, 0);
+    }
+
+    public Vector2Double GetColComponent() {
+        return new Vector2Double(0, this.col);
     }
 
     public Vector2Int Int() {
@@ -74,7 +89,6 @@ public struct Vector2Double {
     }
     public static Vector2Double operator +(Vector2Double a, Vector2Double b) => new Vector2Double(a.Row + b.Row, a.Col + b.Col);
     public static Vector2Double operator -(Vector2Double a, Vector2Double b) => new Vector2Double(a.Row - b.Row, a.Col - b.Col);
-    // public static Vector2Double operator *(Vector2Double a, Vector2Double b) => new Vector2Double(a.x - b.x, a.y - b.y);
     public static Vector2Double operator *(Vector2Double a, double b) => new Vector2Double((a.Row * b), (a.Col * b));
 
 

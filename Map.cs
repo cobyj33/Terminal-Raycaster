@@ -2,7 +2,6 @@ using System;
 using System.Text;
 
 public class Map {
-    
     private Tile[,] tiles;
 
     public Tile[,] Tiles { get => tiles; }
@@ -70,13 +69,13 @@ public class Map {
         return builder.ToString();
     }
 
-    public string ToString<T>(T element) where T: IPositionable, IDrawable {
+    public string ToString(Camera camera) {
         StringBuilder builder = new StringBuilder();
         for (int row = 0; row < tiles.GetLength(0); row++) {
             for (int col = 0; col < tiles.GetLength(1); col++) {
 
-                if ((int)element.Position.row == row && (int)element.Position.col == col) {
-                    builder.Append(element.Char);
+                if ((int)camera.Position.row == row && (int)camera.Position.col == col) {
+                    builder.Append(camera.Char);
                 } else {
                     builder.Append(tiles[row,col].ToString());
                 }

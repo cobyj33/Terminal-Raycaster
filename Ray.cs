@@ -4,7 +4,7 @@ public class Ray {
     private Vector2Double origin;
     private Vector2Double direction;
     private event Action<RayCastHit> OnHit;
-    private event Action OnNoHit;
+    private event Action? OnNoHit;
 
     public Ray(Vector2Double origin, Vector2Double direction, Action<RayCastHit> onHit) {
         this.origin = origin;
@@ -46,8 +46,8 @@ public class Ray {
             Vector2Int tileToCheck = rowStepDirection > 0 ? currentRowPosition.Int() : new Vector2Int((int)Math.Round(currentRowPosition.row + rowStepDirection), (int)currentRowPosition.col);
             if (map.InBounds(tileToCheck)) {
                 Tile tile = map.At(tileToCheck);
-                if (tile is IHittable) {
-                    firstRowHit = new RayCastHit(currentRowPosition, direction.row <= 0 ? Cardinal.NORTH : Cardinal.SOUTH, tile as IHittable);
+                if (tile.canBeHit()) {
+                    firstRowHit = new RayCastHit(currentRowPosition, direction.row <= 0 ? Cardinal.NORTH : Cardinal.SOUTH, tile);
                     break;
                 }
             }
@@ -62,8 +62,8 @@ public class Ray {
             Vector2Int tileToCheck = colStepDirection > 0 ? currentColPosition.Int() : new Vector2Int((int)currentColPosition.row, (int)Math.Round(currentColPosition.col + colStepDirection));
             if (map.InBounds(tileToCheck) ) {
                 Tile tile = map.At(tileToCheck);
-                if (tile is IHittable) {
-                    firstColHit = new RayCastHit(currentColPosition, direction.col <= 0 ? Cardinal.WEST : Cardinal.EAST, tile as IHittable);
+                if (tile.canBeHit()) {
+                    firstColHit = new RayCastHit(currentColPosition, direction.col <= 0 ? Cardinal.WEST : Cardinal.EAST, tile);
                     break;
                 }
             }
