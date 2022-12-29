@@ -70,7 +70,8 @@ class Program {
     public static void Main(string[] args) {
         Terminal.Gui.Application.Init ();
         var top = Terminal.Gui.Application.Top;
-        Map? map = MapFileReader.FromFile("maps/defaults/boxes.txt");
+        string fileToLoad = "maps/defaults/boxes.txt";
+        Map? map = MapFileReader.FromFile(fileToLoad);
 
         // var menu = new Terminal.Gui.MenuBar (new Terminal.Gui.MenuBarItem [] {
         //     new Terminal.Gui.MenuBarItem ("_File", new Terminal.Gui.MenuItem [] {
@@ -92,7 +93,7 @@ class Program {
         //     })
         // });
 
-        var win = new Terminal.Gui.Window ("Hello") {
+        var win = new Terminal.Gui.Window ("Terminal Raycaster") {
             X = 0,
             Y = 1,
             Width = Terminal.Gui.Dim.Fill (),
