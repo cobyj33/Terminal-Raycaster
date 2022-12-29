@@ -5,15 +5,13 @@ I believe this was my first C# Project, not including dabbling in Unity unoffici
 
 C# was fun but everything that I like about C#'s high levelness is more concise in Python, more portable in Javascript, and more precise in C++. It falls into a no-mans-land for me.
 
-
-
 To be honest, I think this project is done, as I'd opt for working on my [online raycaster that's inspired from this](https://www.github.com/cobyj33/raycaster) as it's much easier to show to people (Like most things on the web). You can prototype that version [here](https://cobyj33.github.io/raycaster)
 
 This project still was rewarding to finish though, and it provided a basis for my web version, so of course I'll leave it up. 
 
 **Maybe** I'll try and add more later, but that's a very slim possibility, and it would probably be more so fixing and improving on what is already present rather than adding new features.
 
-### Acknowledgements
+## Acknowledgements
 
 [javidx9](https://www.youtube.com/watch?v=HEb2akswCcw), [Yazgoo](https://www.youtube.com/watch?v=lQF-OAN2dpE), and [David Ziemkiewicz (the best one in my opinion)](https://www.youtube.com/watch?v=94YOd0gimF8) have made much better implementations that you should check out
 
