@@ -1,0 +1,1 @@
+# A directory for the layout of the plans for the Terminal Raycaster Project as it moves along in development

@@ -1,17 +1,15 @@
 ﻿using System;
 // using System.Linq;
 // using System.Threading;
-using Terminal.Gui;
 
 class Program {
-
     public enum RaycasterView {
         BIRD, PERSPECTIVE
     }
 
     public static int viewIndex;
 
-    public static RaycasterView view;
+    public static RaycasterView view = RaycasterView.PERSPECTIVE;
     // public static void Main(string[] args) {
     //     Console.WriteLine("Hello World");
     //     // Map map = new Map(new Dimension(10, 10));
@@ -60,7 +58,7 @@ class Program {
     //     };
     // }
 
-    public static void RenderCamera(Camera camera, View view) {
+    public static void RenderCamera(Camera camera, Terminal.Gui.View view) {
         int width, height;
         view.GetCurrentWidth(out width);
         view.GetCurrentHeight(out height);
@@ -70,44 +68,42 @@ class Program {
     }
 
     public static void Main(string[] args) {
-        Application.Init ();
-        var top = Application.Top;
-        Map? map = MapFileReader.FromFile("maps/boxes.txt");
+        Terminal.Gui.Application.Init ();
+        var top = Terminal.Gui.Application.Top;
+        Map? map = MapFileReader.FromFile("maps/defaults/boxes.txt");
 
-
-
-        var menu = new MenuBar (new MenuBarItem [] {
-            new MenuBarItem ("_File", new MenuItem [] {
-                new MenuItem ("_New", "Creates new file", () => {}),
-                new MenuItem ("_Open", "", () => { 
-                    OpenDialog dialog = new OpenDialog("Select Map File", "Select a map file", new List<string>() { ".txt" }, OpenDialog.OpenMode.File);
-                    string path = dialog.FilePath.ToString();
-                    map = MapFileReader.FromFile(path);
+        // var menu = new Terminal.Gui.MenuBar (new Terminal.Gui.MenuBarItem [] {
+        //     new Terminal.Gui.MenuBarItem ("_File", new Terminal.Gui.MenuItem [] {
+        //         new Terminal.Gui.MenuItem ("_New", "Creates new file", () => {}),
+        //         new Terminal.Gui.MenuItem ("_Open", "", () => { 
+        //             Terminal.Gui.OpenDialog dialog = new Terminal.Gui.OpenDialog("Select Map File", "Select a map file", new List<string>() { ".txt" }, Terminal.Gui.OpenDialog.OpenMode.File);
+        //             string path = dialog.FilePath.ToString();
+        //             map = MapFileReader.FromFile(path);
                     
-             }),
-                new MenuItem ("_Close", "", () => {}),
-                new MenuItem ("_Quit", "", () => { Application.RequestStop(top); })
+        //      }),
+        //         new Terminal.Gui.MenuItem ("_Close", "", () => {}),
+        //         new Terminal.Gui.MenuItem ("_Quit", "", () => { Terminal.Gui.Application.RequestStop(top); })
 
-            }),
-            new MenuBarItem ("_Edit", new MenuItem [] {
-                new MenuItem ("_Copy", "", null),
-                new MenuItem ("C_ut", "", null),
-                new MenuItem ("_Paste", "", null)
-            })
-        });
+        //     }),
+        //     new Terminal.Gui.MenuBarItem ("_Edit", new Terminal.Gui.MenuItem [] {
+        //         new Terminal.Gui.MenuItem ("_Copy", "", null),
+        //         new Terminal.Gui.MenuItem ("C_ut", "", null),
+        //         new Terminal.Gui.MenuItem ("_Paste", "", null)
+        //     })
+        // });
 
-        var win = new Window ("Hello") {
+        var win = new Terminal.Gui.Window ("Hello") {
             X = 0,
             Y = 1,
-            Width = Dim.Fill (),
-            Height = Dim.Fill () - 1
+            Width = Terminal.Gui.Dim.Fill (),
+            Height = Terminal.Gui.Dim.Fill () - 1
         };  
 
-        var textArea = new TextView() {
-            X = Pos.Center(),
-            Y = Pos.Center(),
-            Width = Dim.Percent(100),
-            Height = Dim.Percent(100)
+        var textArea = new Terminal.Gui.TextView() {
+            X = Terminal.Gui.Pos.Center(),
+            Y = Terminal.Gui.Pos.Center(),
+            Width = Terminal.Gui.Dim.Percent(100),
+            Height = Terminal.Gui.Dim.Percent(100)
         };  
 
         if (map != null) {
@@ -115,7 +111,7 @@ class Program {
             Camera camera = new Camera(map);
             camera.Position = map.Center;
             RenderCamera(camera, textArea);
-            Application.Top.KeyDown += (key) => {
+            Terminal.Gui.Application.Top.KeyDown += (key) => {
                 char ch = (char)(key.KeyEvent.Key);
                 switch (ch) {
                     case 'w': camera.Position += camera.Direction.ToLength(0.25); break;
@@ -133,8 +129,6 @@ class Program {
                     case RaycasterView.PERSPECTIVE: RenderCamera(camera, textArea); break;
                     case RaycasterView.BIRD: textArea.Text = map.ToString(camera); break; 
                 }
-
-                
             };
         } else {
             throw new InvalidDataException("File could not be found");
@@ -142,9 +136,10 @@ class Program {
 
         
         // Add both menu and win in a single call
-        top.Add(menu, win);
+        // top.Add(menu, win);
+        top.Add(win);
         win.Add(textArea);
-        Application.Run ();
-        Application.Shutdown ();
+        Terminal.Gui.Application.Run();
+        Terminal.Gui.Application.Shutdown ();
     }
 }
